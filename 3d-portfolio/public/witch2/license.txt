@@ -1,0 +1,11 @@
+Model Information:
+* title:	Jerònima
+* source:	https://sketchfab.com/3d-models/jeronima-2516a1343f1d4eca9d491a9f9e0a98bf
+* author:	albertluna (https://sketchfab.com/albertluna)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Jerònima" (https://sketchfab.com/3d-models/jeronima-2516a1343f1d4eca9d491a9f9e0a98bf) by albertluna (https://sketchfab.com/albertluna) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

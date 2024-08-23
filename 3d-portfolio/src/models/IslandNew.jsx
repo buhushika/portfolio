@@ -1,14 +1,25 @@
-// IslandNewCanvas.jsx
 import React, { Suspense, useEffect, useState } from "react";
-import { Canvas, extend } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
-import * as THREE from "three";
 import CanvasLoader from "../pages/LoaderNew";
+import Witch from "../models/Witch"; // Default import
 
-extend({ OrbitControls, Preload, useGLTF });
+const IslandNew = ({ isMobile, witchPosition, witchRotation }) => {
+  const { scene } = useGLTF("/fantasy_island/scene.gltf");
+  const islandRef = React.useRef();
+  const witchRef = React.useRef();
+  const [manualControl, setManualControl] = useState(false);
 
-const IslandNew = ({ isMobile }) => {
-  const { scene, nodes, materials } = useGLTF("/fantasy_island/scene.gltf");
+
+  useFrame((state, delta) => {
+    if (islandRef.current) {
+      islandRef.current.rotation.y -= delta * 0.01; // Rotate the island backward
+    }
+    if (witchRef.current && !manualControl) {
+      witchRef.current.rotation.y += delta * 0.02; // Rotate the witch forward
+    }
+  });
+  
 
   if (!scene) {
     console.error("Failed to load GLTF model");
@@ -16,23 +27,28 @@ const IslandNew = ({ isMobile }) => {
   }
 
   return (
-    <mesh>
+    <mesh ref={islandRef}>
       <hemisphereLight intensity={1} groundColor="black" skyColor="white" />
       <spotLight
         position={[-20, 50, 10]}
         angle={0.25}
         penumbra={1}
-        intensity={2}
+        intensity={1}
         castShadow
         shadow-mapSize={1024}
       />
-      <pointLight position={[10, 10, 10]} intensity={1.5} castShadow />
-      <directionalLight position={[-5, 10, 5]} intensity={1.2} castShadow />
+      <pointLight position={[10, 10, 10]} intensity={1.4} castShadow />
+      <directionalLight position={[-5, 10, 5]} intensity={1} castShadow />
       <primitive
         object={scene}
         scale={isMobile ? 0.04 : 0.06}
-        position={isMobile ? [0, -3, -0.2] : [0, -3.25, -0.01]}
-        rotation={[-0.02, -0.1, -0.01]}
+        position={isMobile ? [0, -3, -0.2] : [0, -3.25, 0.01]}
+        rotation={[-0.02, -0.1, -0.02]}
+      />
+      <Witch
+        ref={witchRef}
+        position={witchPosition} // Pass updated position
+        rotation={witchRotation} // Pass updated rotation
       />
     </mesh>
   );
@@ -40,27 +56,17 @@ const IslandNew = ({ isMobile }) => {
 
 const IslandNewCanvas = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [witchPosition, setWitchPosition] = useState([5, -1.2, 1]);
+  const [witchRotation, setWitchRotation] = useState([0.2, 1, Math.PI / 20]);
 
   useEffect(() => {
-    // Add a listener for changes to the screen size
     const mediaQuery = window.matchMedia("(max-width: 500px)");
-
-    // Set the initial value of the `isMobile` state variable
     setIsMobile(mediaQuery.matches);
-
-    // Define a callback function to handle changes to the media query
-    const handleMediaQueryChange = (event) => {
-      setIsMobile(event.matches);
-    };
-
-    // Add the callback function as a listener for changes to the media query
+    const handleMediaQueryChange = (event) => setIsMobile(event.matches);
     mediaQuery.addEventListener("change", handleMediaQueryChange);
-
-    // Remove the listener when the component is unmounted
-    return () => {
-      mediaQuery.removeEventListener("change", handleMediaQueryChange);
-    };
+    return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
   }, []);
+
 
   return (
     <Canvas
@@ -76,7 +82,11 @@ const IslandNewCanvas = () => {
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={Math.PI / 2}
         />
-        <IslandNew isMobile={isMobile} />
+        <IslandNew
+          isMobile={isMobile}
+          witchPosition={witchPosition} // Pass the position
+          witchRotation={witchRotation} // Pass the rotation
+        />
       </Suspense>
       <Preload all />
     </Canvas>
